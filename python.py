@@ -10,7 +10,7 @@ class DBSample(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('main_window.ui', self)
-        self.connection = sqlite3.connect("films.db")
+        self.connection = sqlite3.connect("films.sqlite")
         self.types = {'Режиссёр': 'director', 'Жанр': 'Genre', 'Год': 'Year', 'Название': 'Name'}
         self.btn_was_clicked = False
         self.btn.clicked.connect(self.select_data)
@@ -46,9 +46,6 @@ class DBSample(QMainWindow):
         self.tableWidget.verticalHeader().hide()
         self.btn_was_clicked = True
 
-        
-
-        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
