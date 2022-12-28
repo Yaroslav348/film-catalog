@@ -29,7 +29,7 @@
      </font>
     </property>
     <property name="text">
-     <string>10 лучших фильмов</string>
+     <string>5 лучших фильмов</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn">
