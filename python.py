@@ -39,6 +39,7 @@ class DBSample(QMainWindow):
         self.names.append(('more'))
         self.make_table(res)
         self.btn_was_clicked = True
+        pass
 
     def make_table(self, res):
         self.tableWidget.setColumnCount(7)
