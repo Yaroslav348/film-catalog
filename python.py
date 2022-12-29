@@ -11,6 +11,7 @@ class DBSample(QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi('main_window.ui', self)
+        self.asc = True
         self.connection = sqlite3.connect("films.sqlite")
         self.types = {'Режиссёр': 'director', 'Жанр': 'Genre', 'Год': 'Year', 'Название': 'Name'}
         self.btn_was_clicked = False
@@ -74,12 +75,14 @@ class DBSample(QMainWindow):
     def sort_column(self, position):
         cur = self.connection.cursor()
         sort_type = self.names[position]
-        asc = True
+        if not (self.last_position == position):
+            self.asc = True
         print(position, self.last_position)
         try:
             if self.last_position == position:
-                asc = not asc
-            if asc:
+                self.asc = not self.asc
+            print(self.asc)
+            if self.asc:
                 res = cur.execute("""
                                 SELECT id, Name, Genre, Year, director, rating FROM films
                                 ORDER BY 
