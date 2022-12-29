@@ -14,7 +14,7 @@ class DBSample(QMainWindow):
         self.connection = sqlite3.connect("films.sqlite")
         self.types = {'Режиссёр': 'director', 'Жанр': 'Genre', 'Год': 'Year', 'Название': 'Name'}
         self.btn_was_clicked = False
-
+        
         self.last_position = None
         self.btn.clicked.connect(self.select_data)
         self.header = self.tableWidget.horizontalHeader()
@@ -23,7 +23,7 @@ class DBSample(QMainWindow):
 
     def select_data(self):
         cur = self.connection.cursor()
-
+        
         cb_contant = self.types[self.comboBox.currentText()]
         search = str(self.lineEdit.text().capitalize())
         if self.btn_was_clicked:
@@ -39,6 +39,7 @@ class DBSample(QMainWindow):
         self.names.append(('more'))
         self.make_table(res)
         self.btn_was_clicked = True
+        pass
 
     def make_table(self, res):
         self.tableWidget.setColumnCount(7)
@@ -58,10 +59,10 @@ class DBSample(QMainWindow):
             btn.clicked.connect(self.more_information)
         self.tableWidget.setHorizontalHeaderLabels(self.names)
         stylesheet = "::section{Background-color:rgb(175, 175, 175);border-radius:14px;}"
-
+        
         self.header.setStyleSheet(stylesheet)
         self.header.setSectionResizeMode(QHeaderView.Stretch)
-
+        
         self.tableWidget.verticalHeader().hide()
 
     def more_information(self):
@@ -88,7 +89,13 @@ class DBSample(QMainWindow):
                                 SELECT id, Name, Genre, Year, director, rating FROM films
                                 ORDER BY 
                                 {} DESC""".format(sort_type)).fetchall()
-            self.make_table(res)
+            self.make_table(res) 
         except sqlite3.OperationalError:
             pass
         self.last_position = position
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = DBSample()
+    ex.show()
+    sys.exit(app.exec())
