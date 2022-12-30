@@ -2,7 +2,7 @@ import sqlite3
 import sys
 
 from PyQt5 import uic
-from PyQt5.QtCore import QObject, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSlot, Qt
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView, QPushButton, qApp
 
@@ -15,8 +15,8 @@ class DBSample(QMainWindow):
         self.connection = sqlite3.connect("films.sqlite")
         self.types = {'Режиссёр': 'director', 'Жанр': 'Genre', 'Год': 'Year', 'Название': 'Name'}
         self.btn_was_clicked = False
-        
         self.last_position = None
+        self.checkBox.stateChanged.connect(self.select_data)
         self.btn.clicked.connect(self.select_data)
         self.header = self.tableWidget.horizontalHeader()
         self.header.sectionDoubleClicked.connect(self.sort_column)
@@ -24,18 +24,30 @@ class DBSample(QMainWindow):
 
     def select_data(self):
         cur = self.connection.cursor()
-        
         cb_contant = self.types[self.comboBox.currentText()]
         search = str(self.lineEdit.text().capitalize())
-        if self.btn_was_clicked:
-            res = cur.execute(""" 
-                            SELECT id, Name, Genre, Year, director, rating FROM films
-                            WHERE {} LIKE '%{}%'
-                            """.format(cb_contant, search)).fetchall()
+        if self.checkBox.checkState() == Qt.Unchecked:
+            if self.btn_was_clicked:
+                res = cur.execute(""" 
+                                SELECT id, Name, Genre, Year, director, rating FROM films
+                                WHERE {} LIKE '%{}%'
+                                """.format(cb_contant, search)).fetchall()
+            else:
+                res = cur.execute("""
+                                SELECT id, Name, Genre, Year, director, rating FROM films
+                                """)
         else:
-            res = cur.execute("""
-                            SELECT id, Name, Genre, Year, director, rating FROM films
-                            """)
+            if self.btn_was_clicked:
+                res = cur.execute(""" 
+                                SELECT id, Name, Genre, Year, director, rating FROM films
+                                WHERE {} LIKE '%{}%'
+                                ORDER BY rating DESC
+                                """.format(cb_contant, search)).fetchmany(5)
+            else:
+                res = cur.execute("""
+                                SELECT id, Name, Genre, Year, director, rating FROM films
+                                ORDER BY rating DESC
+                                """).fetchmany(5)
         self.names = list(map(lambda x: x[0], cur.description))
         self.names.append(('more'))
         self.make_table(res)
