@@ -86,6 +86,8 @@ class DBSample(QMainWindow):
 
     def sort_column(self, position):
         cur = self.connection.cursor()
+        cb_contant = self.types[self.comboBox.currentText()]
+        search = str(self.lineEdit.text().capitalize())
         sort_type = self.names[position]
         if not (self.last_position == position):
             self.asc = True
@@ -97,13 +99,15 @@ class DBSample(QMainWindow):
             if self.asc:
                 res = cur.execute("""
                                 SELECT id, Name, Genre, Year, director, rating FROM films
+                                WHERE {} LIKE '%{}%'
                                 ORDER BY 
-                                {} ASC""".format(sort_type)).fetchall()
+                                {} ASC""".format(cb_contant, search, sort_type)).fetchall()
             else:
                 res = cur.execute("""
                                 SELECT id, Name, Genre, Year, director, rating FROM films
+                                WHERE {} LIKE '%{}%'
                                 ORDER BY 
-                                {} DESC""".format(sort_type)).fetchall()
+                                {} DESC""".format(cb_contant, search, sort_type)).fetchall()
             self.make_table(res) 
         except sqlite3.OperationalError:
             pass
