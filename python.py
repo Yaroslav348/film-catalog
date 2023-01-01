@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView, QPushBut
 class DBSample(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('main_window.ui', self)
-        self.connection = sqlite3.connect("films.sqlite")
+        uic.loadUi('film-catalog/main_window.ui', self)
+        self.connection = sqlite3.connect("film-catalog/films.sqlite")
         self.types = {'Режиссёр': 'director', 'Жанр': 'Genre', 'Год': 'Year', 'Название': 'Name'}
         self.btn_was_clicked = False
         

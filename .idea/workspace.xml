@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b90e510b-67da-43e0-989d-93b57878c6aa" name="Changes" comment="DB 40 str">
+    <list default="true" id="b90e510b-67da-43e0-989d-93b57878c6aa" name="Changes" comment="DB 40 str 2">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/films.sqlite" beforeDir="false" afterPath="$PROJECT_DIR$/films.sqlite" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/python.py" beforeDir="false" afterPath="$PROJECT_DIR$/python.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -87,7 +89,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672322963766</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="DB 40 str 2">
+      <created>1672325558329</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1672325558329</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -108,6 +117,7 @@
     <MESSAGE value="Prototype of DB 3.1" />
     <MESSAGE value="DB 2" />
     <MESSAGE value="DB 40 str" />
-    <option name="LAST_COMMIT_MESSAGE" value="DB 40 str" />
+    <MESSAGE value="DB 40 str 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="DB 40 str 2" />
   </component>
 </project>
