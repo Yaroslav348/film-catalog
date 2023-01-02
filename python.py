@@ -1,6 +1,6 @@
 import sqlite3
 import sys
-
+import os
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, pyqtSlot, Qt
 from PyQt5.QtWidgets import QApplication, QDialog
@@ -85,6 +85,7 @@ class DBSample(QMainWindow):
         button = qApp.focusWidget()
         index = self.tableWidget.indexAt(button.pos())
         id = self.tableWidget.item(index.row(), 0)
+        os.system('python info.py')
         print(id.text())
 
     def sort_column(self, position: int) -> None:
@@ -149,6 +150,7 @@ class MyAppDialog(QDialog):
     def ok(self) -> None:
         self.delete = True
         self.close()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
