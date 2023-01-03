@@ -1,13 +1,18 @@
 import sqlite3
 import sys
-import os
 from PyQt5 import uic
-from PyQt5.QtCore import QObject, pyqtSlot, Qt
-from PyQt5.QtWidgets import QApplication, QDialog
+from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QDialog, QLabel, QWidget, QTextEdit
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView, QPushButton, qApp
 
 
-class DBSample(QMainWindow):
+LOGO_SIZE = [350, 200]
+SCREEN_SIZE = [400, 800]
+HEADER_SIZE = [350, 20]
+
+
+class FilmDB(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         uic.loadUi('main_window.ui', self)
@@ -82,11 +87,16 @@ class DBSample(QMainWindow):
         self.human_changing = True
 
     def more_information(self) -> None:
+        cur = self.connection.cursor()
         button = qApp.focusWidget()
         index = self.tableWidget.indexAt(button.pos())
-        id = self.tableWidget.item(index.row(), 0)
-        os.system('python info.py')
-        print(id.text())
+        id = self.tableWidget.item(index.row(), 0).text()
+        self.info_res = cur.execute("""
+                                    SELECT Name, Genre, director, description, logo FROM films
+                                    WHERE id = '{}'""".format(id)).fetchone()
+        print(self.info_res)
+        self.info = Info_Window()
+        self.info.show()
 
     def sort_column(self, position: int) -> None:
         cur = self.connection.cursor()
@@ -119,41 +129,96 @@ class DBSample(QMainWindow):
 
     def change_item(self, item: QTableWidgetItem) -> None:
         if self.human_changing:
-            cur = self.connection.cursor()
-            row = item.row()
-            column = item.column()
-            change_type = self.names[column]
-            new_text = item.text()
-            id = self.tableWidget.item(row, 0).text()
-            cur.execute("""
-                    UPDATE films
-                    SET '{}' = '{}'
-                    WHERE id = '{}'
-                    """.format(change_type, new_text, id))
-            self.connection.commit()
+            dialog = MyAppDialog()
+            dialog.exec()
+            if dialog.ok_pressed:
+                cur = self.connection.cursor()
+                row = item.row()
+                column = item.column()
+                change_type = self.names[column]
+                new_text = item.text()
+                id = self.tableWidget.item(row, 0).text()
+                cur.execute("""
+                        UPDATE films
+                        SET '{}' = '{}'
+                        WHERE id = '{}'
+                        """.format(change_type, new_text, id))
+                self.connection.commit()
+            else:
+                self.select_data()
         
     def remove_row(self):
         dialog = MyAppDialog()
         dialog.exec()
-        if dialog.delete:
-            print(self.tableWidget.selectedItems())
+        if dialog.ok_pressed:
+            cur = self.connection.cursor()
+            delete_item = self.tableWidget.selectedItems()
+            id = self.tableWidget.item(delete_item[0].row(), 0).text()
+            cur.execute("""
+                        DELETE FROM films
+                        WHERE id = '{}'""".format(id))
+            self.select_data()
+            self.connection.commit()
 
 
 class MyAppDialog(QDialog):
     def __init__(self) -> None:
         QDialog.__init__(self)
         uic.loadUi('dialog.ui', self)
-        self.delete = False
+        self.ok_pressed = False
         self.btn_2.clicked.connect(self.close)
         self.btn_1.clicked.connect(self.ok)
 
     def ok(self) -> None:
-        self.delete = True
+        self.ok_pressed = True
         self.close()
+
+
+class Info_Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setGeometry(300, 205, *SCREEN_SIZE)
+
+        self.film_name = QLabel(self)
+        self.film_name.setText(ex.info_res[0])
+        self.film_name.setFont(QFont('Times', 13, QFont.Bold))
+        self.film_name.resize(*HEADER_SIZE)
+        self.film_name.move(25, 10)
+
+        self.genre = QLabel(self)
+        self.genre.setText(ex.info_res[1])
+        self.genre.setFont(QFont('Times', 14))
+        self.genre.resize(*HEADER_SIZE)
+        self.genre.move(25, 40)
+
+        self.pixmap = QPixmap(ex.info_res[4])
+        self.pixmap = self.pixmap.scaled(*LOGO_SIZE)
+        self.logo = QLabel(self)
+        self.logo.resize(*LOGO_SIZE)
+        self.logo.move(25, 70)
+        self.logo.setPixmap(self.pixmap)
+
+        self.director = QLabel(self)
+        self.director.setText(f'Директор: {ex.info_res[2]}')
+        self.director.setFont(QFont('Times', 14))
+        self.director.resize(*HEADER_SIZE)
+        self.director.move(25, 280)
+
+        self.about_header = QLabel(self)
+        self.about_header.setText(f'О фильме:')
+        self.about_header.setFont(QFont('Times', 14))
+        self.about_header.resize(*HEADER_SIZE)
+        self.about_header.move(25, 320)
+
+        self.about_text = QTextEdit(self)
+        self.about_text.setText(ex.info_res[3])
+        self.about_text.setFont(QFont('Times', 12))
+        self.about_text.resize(350, 300)
+        self.about_text.move(25, 350)
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = DBSample()
+    ex = FilmDB()
     ex.show()
     sys.exit(app.exec())

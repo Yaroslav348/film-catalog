@@ -28,7 +28,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Вы уверены, что хотите удалить строку?</string>
+    <string>Вы уверены?</string>
    </property>
   </widget>
   <widget class="QPushButton" name="btn_1">
