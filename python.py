@@ -2,8 +2,8 @@ import sqlite3
 import sys
 from PyQt5 import uic
 from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QDialog, QLabel, QWidget, QTextEdit
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import QApplication, QDialog, QLabel, QWidget, QTextEdit, QFileDialog
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView, QPushButton, qApp
 
 
@@ -92,7 +92,7 @@ class FilmDB(QMainWindow):
         index = self.tableWidget.indexAt(button.pos())
         id = self.tableWidget.item(index.row(), 0).text()
         self.info_res = cur.execute("""
-                                    SELECT Name, Genre, director, description, logo FROM films
+                                    SELECT id, Name, Genre, director, description, logo FROM films
                                     WHERE id = '{}'""".format(id)).fetchone()
         print(self.info_res)
         self.info = Info_Window()
@@ -180,26 +180,27 @@ class Info_Window(QWidget):
         self.setGeometry(300, 205, *SCREEN_SIZE)
 
         self.film_name = QLabel(self)
-        self.film_name.setText(ex.info_res[0])
+        self.film_name.setText(ex.info_res[1])
         self.film_name.setFont(QFont('Times', 13, QFont.Bold))
         self.film_name.resize(*HEADER_SIZE)
         self.film_name.move(25, 10)
 
         self.genre = QLabel(self)
-        self.genre.setText(ex.info_res[1])
+        self.genre.setText(ex.info_res[2])
         self.genre.setFont(QFont('Times', 14))
         self.genre.resize(*HEADER_SIZE)
         self.genre.move(25, 40)
 
-        self.pixmap = QPixmap(ex.info_res[4])
+        self.pixmap = QPixmap(ex.info_res[5])
         self.pixmap = self.pixmap.scaled(*LOGO_SIZE)
         self.logo = QLabel(self)
         self.logo.resize(*LOGO_SIZE)
         self.logo.move(25, 70)
         self.logo.setPixmap(self.pixmap)
+        self.logo.mouseDoubleClickEvent = self.change_logo
 
         self.director = QLabel(self)
-        self.director.setText(f'Директор: {ex.info_res[2]}')
+        self.director.setText(f'Директор: {ex.info_res[3]}')
         self.director.setFont(QFont('Times', 14))
         self.director.resize(*HEADER_SIZE)
         self.director.move(25, 280)
@@ -211,11 +212,40 @@ class Info_Window(QWidget):
         self.about_header.move(25, 320)
 
         self.about_text = QTextEdit(self)
-        self.about_text.setText(ex.info_res[3])
+        self.about_text.setText(ex.info_res[4])
         self.about_text.setFont(QFont('Times', 12))
         self.about_text.resize(350, 300)
         self.about_text.move(25, 350)
+        self.about_text.textChanged.connect(self.change_description)
 
+    def change_description(self):
+        new_desc = self.about_text.toPlainText()
+        cur = ex.connection.cursor()
+        id = ex.info_res[0]
+        print(id, new_desc)
+        cur.execute("""
+                    UPDATE films
+                    SET description = '{}'
+                    WHERE id = '{}'
+                    """.format(new_desc, id))
+        ex.connection.commit()
+
+    def change_logo(self, event):
+        fname = QFileDialog.getOpenFileName(self, 'Выбрать картинку', '')[0]
+        start = fname.find('film-catalog')
+        fname = fname[start:]
+        cur = ex.connection.cursor()
+        id = ex.info_res[0]
+        if fname != '':
+            cur.execute("""
+                        UPDATE films
+                        SET logo = '{}'
+                        WHERE id = '{}'
+                        """.format(fname, id))
+            ex.connection.commit()
+            new_pixmap = QPixmap(fname)
+            self.logo.setPixmap(new_pixmap)
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
