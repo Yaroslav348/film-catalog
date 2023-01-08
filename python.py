@@ -16,8 +16,11 @@ class FilmDB(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         uic.loadUi('main_window.ui', self)
+        try:
+            self.connection = sqlite3.connect("film-catalog/films.sqlite")
+        except sqlite3.OperationalError:
+            self.connection = sqlite3.connect("films.sqlite")
         self.asc = True
-        self.connection = sqlite3.connect("films.sqlite")
         self.types = {'Режиссёр': 'director', 'Жанр': 'Genre', 'Год': 'Year', 'Название': 'Name'}
         self.btn_was_clicked = False
         self.last_position = None
@@ -28,7 +31,23 @@ class FilmDB(QMainWindow):
         self.header.sectionDoubleClicked.connect(self.sort_column)
         self.tableWidget.itemChanged.connect(self.change_item)
         self.btn_remove.clicked.connect(self.remove_row)
+        self.btn_add.clicked.connect(self.add_row)
+        add_styleSheet = '''QPushButton {background-color:rgb(50, 240, 50);border-radius:5px;border-style: outset; 
+                            border-width: 2px; border-color:rgb(125, 125, 125);}
+                            QPushButton:hover {background-color:rgb(100, 240, 150);
+                            border-width: 2px; border-color:rgb(50, 50, 240);}
+                            QPushButton:pressed {background-color:rgb(100, 200, 150);
+                            border-width: 2px; border-color:rgb(50, 50, 200);}'''
+        self.btn_add.setStyleSheet(add_styleSheet)
+        remove_styleSheet = '''QPushButton {background-color:rgb(240, 50, 50);border-radius:5px;border-style: outset; 
+                            border-width: 2px; border-color:rgb(125, 125, 125);}
+                            QPushButton:hover {background-color:rgb(240, 100, 150);
+                            border-width: 2px; border-color:rgb(50, 50, 240);}
+                            QPushButton:pressed {background-color:rgb(200, 100, 150);
+                            border-width: 2px; border-color:rgb(50, 50, 200);}'''
+        self.btn_remove.setStyleSheet(remove_styleSheet)
         self.select_data()
+        
 
     def select_data(self) -> None:
         cur = self.connection.cursor()
@@ -160,6 +179,18 @@ class FilmDB(QMainWindow):
             self.select_data()
             self.connection.commit()
 
+    def add_row(self):
+        cur = self.connection.cursor()
+        id = self.tableWidget.rowCount()
+        self.tableWidget.insertRow(id)
+        values = [id + 1] + ['pass' for _ in range(7)]
+        print(values)
+        cur.execute("""
+                    INSERT INTO films 
+                    VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')""".format(*values))
+        self.select_data()
+        self.connection.commit()
+
 
 class MyAppDialog(QDialog):
     def __init__(self) -> None:
@@ -192,6 +223,8 @@ class Info_Window(QWidget):
         self.genre.move(25, 40)
 
         self.pixmap = QPixmap(ex.info_res[5])
+        if self.pixmap.isNull:
+            self.pixmap = QPixmap(ex.info_res[5][13:])
         self.pixmap = self.pixmap.scaled(*LOGO_SIZE)
         self.logo = QLabel(self)
         self.logo.resize(*LOGO_SIZE)
@@ -244,6 +277,8 @@ class Info_Window(QWidget):
                         """.format(fname, id))
             ex.connection.commit()
             new_pixmap = QPixmap(fname)
+            if new_pixmap.isNull:
+                new_pixmap = QPixmap(fname[13:])
             self.logo.setPixmap(new_pixmap)
         
 
