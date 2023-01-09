@@ -223,7 +223,7 @@ class Info_Window(QWidget):
         self.genre.move(25, 40)
 
         self.pixmap = QPixmap(ex.info_res[5])
-        if self.pixmap.isNull:
+        if self.pixmap.isNull():
             self.pixmap = QPixmap(ex.info_res[5][13:])
         self.pixmap = self.pixmap.scaled(*LOGO_SIZE)
         self.logo = QLabel(self)
