@@ -1,6 +1,6 @@
 import sqlite3
 import sys
-from PyQt5 import uic
+from PyQt5 import uic, QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QDialog, QLabel, QWidget, QTextEdit, QFileDialog
@@ -12,10 +12,114 @@ SCREEN_SIZE = [400, 800]
 HEADER_SIZE = [350, 20]
 
 
-class FilmDB(QMainWindow):
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(830, 630)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.checkBox = QtWidgets.QCheckBox(self.centralwidget)
+        self.checkBox.setGeometry(QtCore.QRect(510, 30, 170, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.checkBox.setFont(font)
+        self.checkBox.setObjectName("checkBox")
+        self.btn = QtWidgets.QPushButton(self.centralwidget)
+        self.btn.setGeometry(QtCore.QRect(700, 20, 100, 45))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.btn.setFont(font)
+        self.btn.setObjectName("btn")
+        self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
+        self.tableWidget.setGeometry(QtCore.QRect(30, 90, 770, 440))
+        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setColumnCount(0)
+        self.tableWidget.setRowCount(0)
+        self.comboBox = QtWidgets.QComboBox(self.centralwidget)
+        self.comboBox.setGeometry(QtCore.QRect(30, 30, 150, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.comboBox.setFont(font)
+        self.comboBox.setObjectName("comboBox")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit.setGeometry(QtCore.QRect(210, 30, 270, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.lineEdit.setFont(font)
+        self.lineEdit.setObjectName("lineEdit")
+        self.btn_add = QtWidgets.QPushButton(self.centralwidget)
+        self.btn_add.setGeometry(QtCore.QRect(775, 550, 25, 25))
+        self.btn_add.setObjectName("btn_add")
+        self.btn_remove = QtWidgets.QPushButton(self.centralwidget)
+        self.btn_remove.setGeometry(QtCore.QRect(740, 550, 25, 25))
+        self.btn_remove.setObjectName("btn_remove")
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 830, 21))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.checkBox.setText(_translate("MainWindow", "5 лучших фильмов"))
+        self.btn.setText(_translate("MainWindow", "Поиск"))
+        self.comboBox.setItemText(0, _translate("MainWindow", "Режиссёр"))
+        self.comboBox.setItemText(1, _translate("MainWindow", "Жанр"))
+        self.comboBox.setItemText(2, _translate("MainWindow", "Год"))
+        self.comboBox.setItemText(3, _translate("MainWindow", "Название"))
+        self.btn_add.setText(_translate("MainWindow", "+"))
+        self.btn_remove.setText(_translate("MainWindow", "-"))
+
+
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(400, 100)
+        self.label = QtWidgets.QLabel(Dialog)
+        self.label.setGeometry(QtCore.QRect(20, 15, 360, 25))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+        self.btn_1 = QtWidgets.QPushButton(Dialog)
+        self.btn_1.setGeometry(QtCore.QRect(200, 60, 75, 23))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.btn_1.setFont(font)
+        self.btn_1.setObjectName("btn_1")
+        self.btn_2 = QtWidgets.QPushButton(Dialog)
+        self.btn_2.setGeometry(QtCore.QRect(300, 60, 75, 23))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.btn_2.setFont(font)
+        self.btn_2.setObjectName("btn_2")
+
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.label.setText(_translate("Dialog", "Вы уверены?"))
+        self.btn_1.setText(_translate("Dialog", "Да"))
+        self.btn_2.setText(_translate("Dialog", "Нет"))
+
+
+class FilmDB(QMainWindow, Ui_MainWindow):
     def __init__(self) -> None:
         super().__init__()
-        uic.loadUi('main_window.ui', self)
+        self.setupUi(self)
         try:
             self.connection = sqlite3.connect("film-catalog/films.sqlite")
         except sqlite3.OperationalError:
@@ -192,10 +296,10 @@ class FilmDB(QMainWindow):
         self.connection.commit()
 
 
-class MyAppDialog(QDialog):
+class MyAppDialog(QDialog, Ui_Dialog):
     def __init__(self) -> None:
-        QDialog.__init__(self)
-        uic.loadUi('dialog.ui', self)
+        super().__init__()
+        self.setupUi(self)
         self.ok_pressed = False
         self.btn_2.clicked.connect(self.close)
         self.btn_1.clicked.connect(self.ok)
