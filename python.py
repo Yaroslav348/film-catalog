@@ -217,7 +217,6 @@ class FilmDB(QMainWindow, Ui_MainWindow):
         self.info_res = cur.execute("""
                                     SELECT id, Name, Genre, director, description, logo FROM films
                                     WHERE id = '{}'""".format(id)).fetchone()
-        print(self.info_res)
         self.info = Info_Window()
         self.info.show()
 
@@ -228,11 +227,9 @@ class FilmDB(QMainWindow, Ui_MainWindow):
         sort_type = self.names[position]
         if not (self.last_position == position):
             self.asc = True
-        print(position, self.last_position)
         try:
             if self.last_position == position:
                 self.asc = not self.asc
-            print(self.asc)
             if self.asc:
                 res = cur.execute("""
                                 SELECT id, Name, Genre, Year, director, rating FROM films
@@ -288,7 +285,6 @@ class FilmDB(QMainWindow, Ui_MainWindow):
         id = self.tableWidget.rowCount()
         self.tableWidget.insertRow(id)
         values = [id + 1] + ['pass' for _ in range(7)]
-        print(values)
         cur.execute("""
                     INSERT INTO films 
                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')""".format(*values))
@@ -359,7 +355,6 @@ class Info_Window(QWidget):
         new_desc = self.about_text.toPlainText()
         cur = ex.connection.cursor()
         id = ex.info_res[0]
-        print(id, new_desc)
         cur.execute("""
                     UPDATE films
                     SET description = '{}'
